@@ -25,10 +25,17 @@ public class GpsDownload {
                         .withDescription("gpsFileName (port)")
                         .create("p"));
 
+
         CommandLineParser parser = new PosixParser();
         CommandLine cmdLine = parser.parse(options, args);
 
-        int minusDays = Integer.parseInt(cmdLine.getOptionValue("days", "5"));
+        String gpsFileName = cmdLine.getOptionValue("gpsFileName", "/dev/ttyUSB0");
+
+        if(!new File(gpsFileName).exists()){
+            return;
+        }
+
+        int minusDays = Integer.parseInt(cmdLine.getOptionValue("days", "10"));
 
         MangoGpsController mangoGpsController = new MangoGpsController();
 
@@ -36,9 +43,11 @@ public class GpsDownload {
         while (minusDays > 0) {
             String fileName = DateTimeFormat.forPattern("yyMMdd").print(
                     new DateTime().minusDays(--minusDays)) + ".TXT";
-            String gpsFileName = cmdLine.getOptionValue("gpsFileName", "/dev/ttyUSB0");
+
+            System.out.println("try process file "+fileName);
 
             if (!new File(fileName).exists()) {
+                System.out.println("process file "+fileName);
                 mangoGpsController.sendDownloadCommand(fileName, gpsFileName);
                 mangoGpsController.downloadFile(fileName, gpsFileName);
             }

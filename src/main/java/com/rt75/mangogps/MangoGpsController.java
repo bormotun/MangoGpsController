@@ -15,6 +15,9 @@ public class MangoGpsController {
 
             while (System.currentTimeMillis() - num < 10000) {
                 line = buf.readLine();
+
+               // System.out.println(line);
+
                 if (line == null) {
                     Thread.sleep(50);
                     continue;
@@ -35,9 +38,8 @@ public class MangoGpsController {
             buf.close();
         }
 
-        System.out.println(sb.toString());
 
-        if (sb.length() > 0) {
+        if (sb.length() > 0 && sb.toString().startsWith("$")) {
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(new FileOutputStream(fileName)));
             try {
