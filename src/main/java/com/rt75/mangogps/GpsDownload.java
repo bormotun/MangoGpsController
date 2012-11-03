@@ -32,7 +32,7 @@ public class GpsDownload {
         String gpsFileName = cmdLine.getOptionValue("gpsFileName", "/dev/ttyUSB0");
 
         if(!new File(gpsFileName).exists()){
-            return;
+         //   return;
         }
 
         int minusDays = Integer.parseInt(cmdLine.getOptionValue("days", "10"));
