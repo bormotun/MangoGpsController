@@ -90,4 +90,15 @@ public class MangoGpsController {
             outputStream.close();
         }
     }
+
+    /*  TODO
+    "@RM," + str5 + ".TXT#" -удаление
+    "@R,Date#"   - помоему это чтение списка файлов ? (не надо будет тупо перебирать ))) )
+     @R,VER#
+     "@R,POI," + i + "#" - видимо чтение точек
+     string.Format("@S,POI,{0},{1},{2},{3}#", new object[] { i, pOITextBoxByIndex.Text.Trim(), lngTextBoxByIndex.Text.Trim(), latTextBoxByIndex.Text.Trim() }); - запись
+
+     */
+
+
 }
