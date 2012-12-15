@@ -1,13 +1,12 @@
 package com.rt75.mangogps;
 
 import org.apache.commons.cli.*;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
 
@@ -18,11 +17,7 @@ public class GpsDownload {
     public static void main(String... args) throws IOException, InterruptedException, ParseException {
 
         Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("days")
-                .hasArgs()
-                .withDescription("how many days ago")
-                .create("d"))
-                .addOption(OptionBuilder.withLongOpt("gpsFileName")
+        options.addOption(OptionBuilder.withLongOpt("gpsFileName")
                         .hasArgs()
                         .withDescription("gpsFileName (port)")
                         .create("p"))
@@ -48,30 +43,30 @@ public class GpsDownload {
 
         if(!new File(gpsFileName).exists()){
             logger.error("Can not open gps-com file: {}",gpsFileName);
-          //  return;
+            return;
         }
 
-        int minusDays = Integer.parseInt(cmdLine.getOptionValue("days", "10"));
 
         MangoGpsController mangoGpsController = new MangoGpsController();
 
+        String[] filesNames=mangoGpsController.getFilesNames(gpsFileName);
 
-        while (minusDays > 0) {
-            String fileName = DateTimeFormat.forPattern("yyMMdd").print(
-                    new DateTime().minusDays(--minusDays)) + ".TXT";
+      //  logger.debug(mangoGpsController.getVerionCommand(gpsFileName));
+        logger.debug(Arrays.toString(filesNames));
 
+        for (String fileName:filesNames) {
+            fileName=fileName.substring(1,fileName.length()-1);
             logger.info("try process file {}:",fileName);
 
             if (!new File(fileName).exists()) {
                 logger.info("process file {}:",fileName);
                 mangoGpsController.sendDownloadCommand(fileName, gpsFileName);
                 mangoGpsController.downloadFile(fileName, gpsFileName);
+            }else{
+               logger.info("file {} already exists:",fileName);
             }
 
         }
-
-
     }
-
 
 }
