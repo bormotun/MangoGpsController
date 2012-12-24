@@ -12,7 +12,7 @@ public class MangoGpsController {
     private static final int TRYREADDELAY = 30;
     private static final int TRYREADTIMEOUTT = 10000;
 
-    void downloadFile(String fileName, String gpsFileName) throws IOException, InterruptedException {
+    public void downloadFile(String fileName, String gpsFileName) throws IOException, InterruptedException {
         File gps = new File(gpsFileName);
 
         long num = System.currentTimeMillis();
@@ -51,7 +51,7 @@ public class MangoGpsController {
     }
 
 
-    String[] getFilesNames(String gpsFileName) throws IOException, InterruptedException {
+    public String[] getFilesNames(String gpsFileName) throws IOException, InterruptedException {
         File gps = new File(gpsFileName);
 
         OutputStream outputStream = new FileOutputStream(gps);
@@ -86,13 +86,13 @@ public class MangoGpsController {
         }
 
         if (sb.length() > END_SIGNATURE.length()) {
-            return  sb.substring(0, sb.length() - END_SIGNATURE.length()).split("\r\n");
+            return sb.substring(0, sb.length() - END_SIGNATURE.length()).split("\r\n");
         }
         return null;
     }
 
 
-    void sendDownloadCommand(String fileName, String gpsFileName) throws IOException {
+    public void sendDownloadCommand(String fileName, String gpsFileName) throws IOException {
         File gps = new File(gpsFileName);
         OutputStream outputStream = new FileOutputStream(gps);
         try {
@@ -103,7 +103,7 @@ public class MangoGpsController {
         }
     }
 
-    String getVerionCommand(String gpsFileName) throws IOException, InterruptedException {
+    public String getVerionCommand(String gpsFileName) throws IOException, InterruptedException {
         File gps = new File(gpsFileName);
         OutputStream outputStream = new FileOutputStream(gps);
         try {
@@ -124,6 +124,14 @@ public class MangoGpsController {
             Thread.sleep(TRYREADDELAY);
         }
         return line;
+    }
+
+
+    public void writePoi(String index, String description, String lon, String lat) {
+        System.out.println("index " + index);
+        System.out.println("descr " + description);
+        System.out.println("lon " + lon);
+        System.out.println("lat " + lat);
     }
 
     /*  TODO
