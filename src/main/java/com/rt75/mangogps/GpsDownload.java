@@ -17,24 +17,31 @@ public class GpsDownload {
     public static void main(String... args) throws IOException, InterruptedException, ParseException {
 
         Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("gpsFileName")
+        OptionGroup group = new OptionGroup();
+        group.addOption(OptionBuilder.withLongOpt("readPOI")
                 .hasArg()
-                .withDescription("gpsFileName (port). [/dev/ttyUSB0]")
-                .create("p"))
-                .addOption(OptionBuilder.withLongOpt("verbose")
-                        .hasArg()
-                        .withDescription("log level DEBUG | INFO | ERROR. [ERROR]")
-                        .create("v"))
-                .addOption(OptionBuilder.withLongOpt("readPOI")
-                        .withDescription("read POI <1-16>")
-                        .create("r"))
-                .addOption(OptionBuilder.withLongOpt("writePOI")
-                        .hasArgs(4)
-                        .withDescription("write POI <index> <descr> <lon> <lat>")
-                        .create("w"))
+                .withArgName("index [1-16]")
+                .withDescription("read POI")
+                .create("r")).addOption(OptionBuilder.withLongOpt("writePOI")
+                .hasArgs(4).withArgName("index descr lon lat")
+                .withDescription("write POI")
+                .create("w"))
                 .addOption(OptionBuilder.withLongOpt("help")
                         .withDescription("print this message")
                         .create("h"));
+
+
+        options.addOption(OptionBuilder.withLongOpt("gpsFileName")
+                .hasArg()
+                .withArgName("[/dev/ttyUSB0]")
+                .withDescription("gpsFileName (port).")
+                .create("p"))
+                .addOption(OptionBuilder.withLongOpt("verbose")
+                        .hasArg()
+                        .withArgName("[DEBUG | INFO | ERROR] ERROR")
+                        .withDescription("log level")
+                        .create("v"))
+                .addOptionGroup(group);
 
 
         CommandLineParser parser = new PosixParser();
@@ -69,9 +76,8 @@ public class GpsDownload {
         if (cmdLine.hasOption("writePOI")) {
             String[] poiArgs = cmdLine.getOptionValues("writePOI");
             if (poiArgs.length > 3) {
-                 mangoGpsController.writePoi(poiArgs[0],poiArgs[1],poiArgs[2],poiArgs[3]);
-            }//else Exception  System.exit(1)
-
+                mangoGpsController.writePoi(poiArgs[0], poiArgs[1], poiArgs[2], poiArgs[3]);
+            }
             System.exit(0);
         }
 
