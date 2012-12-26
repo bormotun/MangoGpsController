@@ -175,22 +175,26 @@ public class GpsDownload {
         }
     }
 
-    private void downloadTrack() throws IOException, InterruptedException {
+    private void downloadTrack() throws IOException, InterruptedException, MangoException {
         String fileName = cmdLine.getOptionValue(DWN_TRK);
         if (fileName != null) {
             downloadTrack(fileName);
+        } else {
+            throw new MangoException("bad arguments");
         }
     }
 
-    private void removeTrack() {
+    private void removeTrack() throws MangoException {
         String fileName = cmdLine.getOptionValue(RM_TRK);
         if (fileName != null) {
             removeTrack(fileName);
+        } else {
+            throw new MangoException("bad arguments");
         }
     }
 
     private void removeTrack(String fileName) {
-            throw new RuntimeException("not implemented yet");
+        throw new RuntimeException("not implemented yet");
     }
 
     private void downloadTracks() throws IOException, InterruptedException {
