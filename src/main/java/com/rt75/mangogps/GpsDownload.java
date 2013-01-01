@@ -33,7 +33,6 @@ public class GpsDownload {
         String gpsFileName = cmdLine.getOptionValue("gpsFileName", "/dev/ttyUSB0");
 
 
-        //TODO брать из параметров коммандной строки
         if(logger instanceof ch.qos.logback.classic.Logger){
             ((ch.qos.logback.classic.Logger) logger).setLevel(ch.qos.logback.classic.Level.valueOf(
              cmdLine.getOptionValue("logLevel", "ERROR")
@@ -43,7 +42,7 @@ public class GpsDownload {
 
         if(!new File(gpsFileName).exists()){
             logger.error("Can not open gps-com file: {}",gpsFileName);
-            return;
+            System.exit(1);
         }
 
 
