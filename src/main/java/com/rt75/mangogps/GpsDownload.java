@@ -204,8 +204,12 @@ public class GpsDownload {
         logger.debug(Arrays.toString(filesNames));
 
         for (String fileName : filesNames) {
-            fileName = fileName.substring(1, fileName.length() - 1);
-            downloadTrack(fileName);
+            fileName = fileName.trim();
+            if (!fileName.isEmpty()) {
+                fileName = fileName.substring(1, fileName.length() - 1);
+                Thread.sleep(2000);  //без этой задержки бывает подвисает наглухо
+                downloadTrack(fileName);
+            }
         }
     }
 
