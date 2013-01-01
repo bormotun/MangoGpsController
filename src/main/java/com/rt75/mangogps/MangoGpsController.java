@@ -86,7 +86,7 @@ public class MangoGpsController {
         }
 
         if (sb.length() > END_SIGNATURE.length()) {
-            return sb.substring(0, sb.length() - END_SIGNATURE.length()).split("\r\n");
+            return sb.substring(0, sb.length() - END_SIGNATURE.length()).split("\n");
         }
         return null;
     }
