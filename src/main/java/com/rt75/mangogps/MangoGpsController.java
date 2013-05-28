@@ -139,6 +139,9 @@ public class MangoGpsController {
    "@R,POI," + i + "#" - видимо чтение точек
      string.Format("@S,POI,{0},{1},{2},{3}#", new object[] { i, pOITextBoxByIndex.Text.Trim(), lngTextBoxByIndex.Text.Trim(), latTextBoxByIndex.Text.Trim() }); - запись
 
+
+http://habrahabr.ru/post/133766/
+
      */
 
 
