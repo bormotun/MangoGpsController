@@ -1,5 +1,6 @@
 package com.rt75.mangogps;
 
+import jssc.SerialPortException;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class GpsDownload {
     public static final String RM_TRK = "rmTrk";
     public static final String DWN_TRK = "dwnTrk";
 
-    public static void main(String... args) {
+    public static void main(String... args) throws InterruptedException, MangoException, SerialPortException, ParseException, IOException {
         try {
             run(args);
         } catch (Exception e) {
@@ -38,7 +39,7 @@ public class GpsDownload {
         }
     }
 
-    private static void run(String... args) throws ParseException, IOException, InterruptedException, MangoException {
+    private static void run(String... args) throws ParseException, IOException, InterruptedException, MangoException, SerialPortException {
 
         Options options = new Options();
         //OptionGroup group = new OptionGroup();
@@ -167,15 +168,15 @@ public class GpsDownload {
         }
     }
 
-    private void removeTracks() throws IOException, InterruptedException {
-        String[] filesNames = mangoGpsController.getFilesNames(gpsFileName);
+    private void removeTracks() throws IOException, InterruptedException, SerialPortException {
+        String[] filesNames = mangoGpsController.getFilesNames(mangoGpsController.getSerialPort(gpsFileName));
         for (String fileName : filesNames) {
             fileName = fileName.substring(1, fileName.length() - 1);
             removeTrack(fileName);
         }
     }
 
-    private void downloadTrack() throws IOException, InterruptedException, MangoException {
+    private void downloadTrack() throws IOException, InterruptedException, MangoException, SerialPortException {
         String fileName = cmdLine.getOptionValue(DWN_TRK);
         if (fileName != null) {
             downloadTrack(fileName);
@@ -197,8 +198,8 @@ public class GpsDownload {
         throw new RuntimeException("not implemented yet");
     }
 
-    private void downloadTracks() throws IOException, InterruptedException {
-        String[] filesNames = mangoGpsController.getFilesNames(gpsFileName);
+    private void downloadTracks() throws IOException, InterruptedException, SerialPortException {
+        String[] filesNames = mangoGpsController.getFilesNames(mangoGpsController.getSerialPort(gpsFileName));
 
         //  logger.debug(mangoGpsController.getVerionCommand(gpsFileName));
         logger.debug(Arrays.toString(filesNames));
@@ -213,13 +214,12 @@ public class GpsDownload {
         }
     }
 
-    private void downloadTrack(String fileName) throws IOException, InterruptedException {
+    private void downloadTrack(String fileName) throws IOException, InterruptedException, SerialPortException {
         logger.info("try process file {}:", fileName);
 
         if (!new File(fileName).exists()) {
             logger.info("process file {}:", fileName);
-            mangoGpsController.sendDownloadCommand(fileName, gpsFileName);
-            mangoGpsController.downloadFile(fileName, gpsFileName);
+            mangoGpsController.downloadFile(fileName, mangoGpsController.getSerialPort(gpsFileName));
         } else {
             logger.error("file {} already exists:", fileName);
         }

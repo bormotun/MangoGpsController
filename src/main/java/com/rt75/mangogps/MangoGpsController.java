@@ -1,129 +1,132 @@
 package com.rt75.mangogps;
 
+import jssc.SerialPort;
+import jssc.SerialPortEvent;
+import jssc.SerialPortEventListener;
+import jssc.SerialPortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 public class MangoGpsController {
     private static Logger logger = LoggerFactory.getLogger(MangoGpsController.class);
 
     private static final String END_SIGNATURE = "@end#";
-    private static final int TRYREADDELAY = 30;
-    private static final int TRYREADTIMEOUTT = 10000;
 
-    public void downloadFile(String fileName, String gpsFileName) throws IOException, InterruptedException {
-        File gps = new File(gpsFileName);
+    public String[] getFilesNames(final SerialPort serialPort) throws IOException, InterruptedException, SerialPortException {
+        final StringBuilder sb = new StringBuilder();
+        serialPort.addEventListener(new SerialPortEventListener() {
+            @Override
+            public void serialEvent(SerialPortEvent event) {
+                if (event.isRXCHAR() && event.getEventValue() > 0) {
+                    try {
+                        String data = serialPort.readString();
 
-        long num = System.currentTimeMillis();
-        StringBuilder sb = new StringBuilder();
-
-        InputStream is = new BufferedInputStream(new FileInputStream(gps));
-
-        try {
-            while (System.currentTimeMillis() - num < TRYREADTIMEOUTT) {
-                int b = is.read();
-                if (b == -1) {
-                    Thread.sleep(TRYREADDELAY);
-                    continue;
-                }
-
-                sb.append((char) b);
-
-                if (sb.indexOf(END_SIGNATURE) != -1) {
-                    break;
+                        if (!data.contains(END_SIGNATURE)) {
+                            sb.append(data);
+                            return;
+                        }
+                        data = data.substring(0, data.indexOf(END_SIGNATURE));
+                        sb.append(data);
+                        serialPort.closePort();
+                    } catch (SerialPortException e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
             }
-        } finally {
-            is.close();
+        });
+        serialPort.writeString("@R,Date#");
+
+        while (serialPort.isOpened()) {
+            Thread.sleep(200);
         }
 
-        if (sb.length() > 0 && sb.toString().startsWith("$")) {
+        return sb.toString().split("\r\n");
+
+    }
+
+
+    public String getVerionCommand(final SerialPort serialPort) throws IOException, InterruptedException, SerialPortException {
+        final String[] data = new String[1];
+        serialPort.addEventListener(new SerialPortEventListener() {
+            @Override
+            public void serialEvent(SerialPortEvent event) {
+                if (event.isRXCHAR() && event.getEventValue() > 0) {
+                    try {
+                        data[0] = serialPort.readString();
+                        serialPort.closePort();
+                    } catch (SerialPortException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+            }
+        });
+        serialPort.writeString("@R,VER#");
+
+        while (serialPort.isOpened()) {
+            Thread.sleep(200);
+        }
+
+        return data[0];
+    }
+
+
+    public SerialPort getSerialPort(String serialPortName) throws SerialPortException {
+        SerialPort serialPort = new SerialPort(serialPortName);
+        serialPort.openPort();
+        serialPort.setParams(SerialPort.BAUDRATE_115200,
+                SerialPort.DATABITS_8,
+                SerialPort.STOPBITS_1,
+                SerialPort.PARITY_NONE);
+
+        return serialPort;
+    }
+
+    private void saveFile(String fileName, String data) throws IOException {
+        if (data.length() > 0 && data.startsWith("$")) {
             BufferedWriter writer = new BufferedWriter(
                     new OutputStreamWriter(new FileOutputStream(fileName)));
             try {
-                writer.write(sb.substring(0, sb.length() - END_SIGNATURE.length()));
+                writer.write(data);
             } finally {
                 writer.close();
             }
         }
-
     }
 
-
-    public String[] getFilesNames(String gpsFileName) throws IOException, InterruptedException {
-        File gps = new File(gpsFileName);
-
-        OutputStream outputStream = new FileOutputStream(gps);
-        try {
-            outputStream.write(("@R,Date#").getBytes());
-            outputStream.flush();
-        } finally {
-            outputStream.close();
-        }
-
-        long num = System.currentTimeMillis();
-        StringBuilder sb = new StringBuilder();
-
-        InputStream is = new BufferedInputStream(new FileInputStream(gps));
-        try {
-            while (System.currentTimeMillis() - num < TRYREADTIMEOUTT) {
-                int b = is.read();
-                if (b == -1) {
-                    Thread.sleep(TRYREADDELAY);
-                    continue;
+    public void downloadFile(final String fileName, final SerialPort serialPort) throws SerialPortException, InterruptedException {
+        final StringBuilder sb = new StringBuilder();
+        serialPort.addEventListener(new SerialPortEventListener() {
+            @Override
+            public void serialEvent(SerialPortEvent event) {
+                if (event.isRXCHAR() && event.getEventValue() > 0) {
+                    try {
+                        String data = serialPort.readString();
+                        if (!data.contains(END_SIGNATURE)) {
+                            sb.append(data);
+                            return;
+                        }
+                        data = data.substring(0, data.indexOf(END_SIGNATURE));
+                        sb.append(data);
+                        serialPort.closePort();
+                        saveFile(fileName, sb.toString());
+                    } catch (SerialPortException e) {
+                        logger.error(e.getMessage(), e);
+                    } catch (IOException e) {
+                        logger.error(e.getMessage(), e);
+                    }
                 }
-
-                sb.append((char) b);
-
-                if (sb.indexOf(END_SIGNATURE) != -1) {
-                    break;
-                }
-
             }
-        } finally {
-            is.close();
-        }
+        });
+        serialPort.writeString("@R,GPRMC," + fileName + "#");
 
-        if (sb.length() > END_SIGNATURE.length()) {
-            return sb.substring(0, sb.length() - END_SIGNATURE.length()).split("\n");
+        while (serialPort.isOpened()) {
+            Thread.sleep(200);
         }
-        return null;
-    }
-
-
-    public void sendDownloadCommand(String fileName, String gpsFileName) throws IOException {
-        File gps = new File(gpsFileName);
-        OutputStream outputStream = new FileOutputStream(gps);
-        try {
-            outputStream.write(("@R,GPRMC," + fileName + "#").getBytes());
-            outputStream.flush();
-        } finally {
-            outputStream.close();
-        }
-    }
-
-    public String getVerionCommand(String gpsFileName) throws IOException, InterruptedException {
-        File gps = new File(gpsFileName);
-        OutputStream outputStream = new FileOutputStream(gps);
-        try {
-            outputStream.write(("@R,VER#").getBytes());
-            outputStream.flush();
-        } finally {
-            outputStream.close();
-        }
-
-        long num = System.currentTimeMillis();
-        String line = null;
-        BufferedReader buf = new BufferedReader(new InputStreamReader(new FileInputStream(gps)));
-        while (System.currentTimeMillis() - num < TRYREADTIMEOUTT) {
-            line = buf.readLine();
-            if (line != null) {
-                break;
-            }
-            Thread.sleep(TRYREADDELAY);
-        }
-        return line;
     }
 
 
