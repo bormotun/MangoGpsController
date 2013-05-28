@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.rt75.mangogps</groupId>
-    <artifactId>gpsController</artifactId>
+    <artifactId>mango-gps</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>gpsController</name>
     <url>http://maven.apache.org</url>
 
@@ -51,6 +51,9 @@
                             <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>com.rt75.mangogps.GpsDownload</mainClass>
                         </manifest>
+                        <manifestEntries>
+                            <Class-Path>lib/jssc.jar</Class-Path>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
@@ -130,6 +133,12 @@
             <artifactId>logback-classic</artifactId>
             <version>1.0.7</version>
         </dependency>
-
+        <dependency>
+            <groupId>jssc</groupId>
+            <artifactId>jssc</artifactId>                              <!--  compile, runtime, test, system, and provided -->
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jssc.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>
