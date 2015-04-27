@@ -8,6 +8,12 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
 
@@ -30,9 +36,84 @@ public class GpsDownload {
     public static final String RM_TRK = "rmTrk";
     public static final String DWN_TRK = "dwnTrk";
 
+
+    public static class SortListString {
+
+        public static List<String> sort(List<String> st){
+            Collections.sort(st, String::compareTo);
+
+            st.stream().distinct().filter(a -> a.startsWith("A")).forEach(System.out::println);
+
+            st.stream().distinct().forEach(System.out::println);
+
+
+            st.stream().distinct().forEach(System.out::println);
+
+            List<String> sttt= st.stream().distinct().collect(Collectors.toList());
+            sttt.stream().forEach(System.out::println);
+            sttt.stream().forEach((s) -> {
+                String ss = "aaaa" + s;
+                System.out.println(ss);
+            });
+
+
+
+            st.stream().distinct().forEach(System.out::println);
+
+            return st;
+        }
+
+    }
+
+
     public static void main(String... args) throws InterruptedException, MangoException, SerialPortException, ParseException, IOException {
         try {
-            run(args);
+
+
+
+            String aaaaa="sdfvsdfv";
+            Optional<String> optional = Optional.ofNullable(aaaaa);
+
+//            Function<String,Optional<String>> f=(s)->{
+//                return Optional.of(s.substring(2));
+//            };
+
+            Function<String,Optional<String>> f=(s)->Optional.of(s.substring(2));
+
+            //flatMap не оборачивает в Optional map - оборачивает
+            System.out.println(optional.map(String::length).map(i -> i+1).get());
+            System.out.println(optional.
+                    flatMap(s -> {return Optional.of(s.length());}).map(i -> i+1).get());
+
+
+
+
+       //     Function<String,Optional<String>> f= Optional::of;
+
+            System.out.println(optional.flatMap(f).flatMap(f).flatMap(f).orElse("null value"));
+
+           System.out.println(optional.orElse("null value"));
+
+
+
+           System.out.println(SortListString.sort(Arrays.asList("Steve","Steve", "Alex", "Jim", "Bob")));
+
+           // java.util.functions.Predicates;
+
+
+            Predicate<String> predicate=
+                    ((Predicate<String>)(s)-> s!=null)  //не работает, проверяет все условия в цепочке
+                    .and((s)->!s.isEmpty())
+                    .and((s)->s.startsWith("a"))
+                    .or((s) -> s.startsWith("b"));
+
+            System.out.println(predicate.test("aaaaa"));
+            System.out.println(predicate.test("baaaa"));
+            System.out.println(predicate.test("caaaa"));
+            System.out.println(predicate.test(null));
+            System.out.println(predicate.test(""));
+
+          //  run(args);
         } catch (Exception e) {
             logger.error(e.getMessage());
             System.exit(ERRORCODE);
